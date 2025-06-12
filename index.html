@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard - Cube Wealth</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Import Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: rgb(24, 24, 27); /* Black background */
+            color: rgb(200, 200, 200); /* Light gray text */
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Custom scrollbar for better aesthetics on dark background */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgb(39, 39, 42); /* Darker gray for track */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgb(82, 82, 91); /* Medium gray for thumb */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(113, 113, 122); /* Lighter gray on hover */
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem 2rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: rgb(39, 39, 42);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgb(63, 63, 70);
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed rgb(82, 82, 91);
+            border-radius: 8px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(63, 63, 70, 0.3);
+        }
+
+        .upload-area:hover {
+            border-color: rgb(96, 165, 250); /* Blue-400 */
+            background-color: rgba(96, 165, 250, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: rgb(96, 165, 250);
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: rgb(148, 163, 184);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: rgb(200, 200, 200);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: rgb(163, 163, 163);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgb(96, 165, 250) 0%, rgb(59, 130, 246) 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(96, 165, 250, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgb(236, 72, 153) 0%, rgb(219, 39, 119) 100%);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgb(63, 63, 70);
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: rgb(96, 165, 250); /* Blue-400 */
+            letter-spacing: 0.025em;
+        }
+
+        .cube-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .cube-logo svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Profile Overview - Updated for square card layout */
+        .profile-dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .profile-section {
+            background: rgb(39, 39, 42);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgb(63, 63, 70);
+            height: 460px; /* Increased to match goal cards grid */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgb(147, 197, 253); /* Blue-300 */
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .profile-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .profile-item {
+            padding: 12px 0;
+            background: transparent;
+            border-radius: 0;
+            text-align: center;
+            border-bottom: 1px solid rgb(63, 63, 70);
+        }
+
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-label {
+            font-size: 0.875rem;
+            color: rgb(163, 163, 163); /* Gray-400 */
+            margin-bottom: 4px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: rgb(229, 231, 235); /* Gray-200 */
+        }
+        
+        /* Specific colors for risk profiles */
+        .profile-value.risk-low {
+            color: rgb(74, 222, 128); /* Green-400 */
+        }
+        .profile-value.risk-moderate {
+            color: rgb(250, 204, 21); /* Yellow-400 */
+        }
+        .profile-value.risk-high {
+            color: rgb(248, 113, 113); /* Red-400 */
+        }
+
+        /* Highlight specific values (kept for monthly investment) */
+        .profile-value.investment-amount {
+            color: rgb(74, 222, 128); /* Green-400 */
+            font-weight: 600;
+        }
+
+        /* Goal Cards - Updated for exact design match */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            height: 460px;
+        }
+
+        .goal-card {
+            background: #1c1c1e; /* Exact dark background */
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgb(63, 63, 70);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 220px;
+        }
+
+        /* Goal title colors */
+        .goal-title.emergency {
+            color: #86efac; /* Light green */
+        }
+
+        .goal-title.short-term {
+            color: #fde047; /* Yellow */
+        }
+
+        .goal-title.medium-term {
+            color: #c4b5fd; /* Light purple */
+        }
+
+        .goal-title.long-term {
+            color: #f9a8d4; /* Light pink */
+        }
+
+        /* Progress Dial - New SVG-based progress bar */
+        .progress-dial {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%; /* Just for visual container consistency */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700; /* Adjusted to 700 to match previous progress-percentage */
+            font-size: 1.3rem; /* Adjusted to 1.3rem to match previous progress-percentage */
+            color: rgb(255, 255, 255); /* White text for dial */
+        }
+
+        .progress-dial svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg); /* Start from top */
+        }
+
+        .progress-dial circle {
+            fill: none;
+            stroke-width: 10; /* Thickness of the ring */
+        }
+
+        .progress-dial .bg-circle {
+            stroke: rgb(63, 63, 70); /* Light grey for the background ring */
+        }
+
+        .progress-dial .progress-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            /* progress-color will be set dynamically via JS for stroke */
+        }
+
+        /* Progress colors for different goals - used for SVG stroke */
+        .progress-dial.emergency .progress-circle {
+            stroke: #86efac;
+        }
+
+        .progress-dial.short-term .progress-circle {
+            stroke: #fde047;
+        }
+
+        .progress-dial.medium-term .progress-circle {
+            stroke: #c4b5fd;
+        }
+
+        .progress-dial.long-term .progress-circle {
+            stroke: #f9a8d4;
+        }
+
+        .progress-percentage {
+            position: relative;
+            z-index: 10;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: rgb(255, 255, 255);
+            text-align: center;
+        }
+
+        .goal-details {
+            text-align: center;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .goal-subtext {
+            font-size: 0.875rem;
+            color: #aaa; /* Light gray as specified */
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .goal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        /* SIP Table */
+        .sip-section {
+            background: rgb(39, 39, 42);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgb(63, 63, 70);
+            overflow-x: auto;
+        }
+
+        .sip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        .sip-table th {
+            background: rgb(63, 63, 70);
+            color: rgb(243, 244, 246); /* Gray-100 */
+            padding: 12px 24px;
+            font-weight: 400;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+        }
+
+        .sip-table th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .sip-table th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .sip-table td {
+            padding: 12px 24px;
+            border-bottom: 1px solid rgb(63, 63, 70);
+            color: rgb(209, 213, 219); /* Gray-300 */
+            font-size: 0.875rem;
+            font-weight: 300;
+        }
+
+        .sip-table tr:hover {
+            background: rgb(63, 63, 70);
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .status-not-achievable {
+            color: rgb(248, 113, 113); /* Red-400 - bright red for not achievable */
+            font-weight: 600;
+            background-color: rgba(248, 113, 113, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .status-achievable {
+            color: rgb(34, 197, 94); /* Green-500 - bright green for achievable */
+            font-weight: 600;
+            background-color: rgba(34, 197, 94, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Add styles for projected corpus */
+        .projected-corpus-achievable {
+            color: rgb(34, 197, 94) !important; /* Green-500 - bright green for achievable */
+            font-weight: 600;
+        }
+
+        .projected-corpus-not-achievable {
+            color: rgb(248, 113, 113) !important; /* Red-400 - bright red for not achievable */
+            font-weight: 600;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgb(39, 39, 42);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgb(63, 63, 70);
+        }
+            
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+            display: flex;
+        }
+
+        /* Bar Chart Container from your custom styling */
+        .bar-chart-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 400px; /* Fixed height for chart */
+            padding: 1.5rem;
+            background-color: rgb(39, 39, 42); /* Neutral-800 equivalent */
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-axis-y {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding-right: 0.5rem;
+            text-align: right;
+            font-size: 0.75rem; /* text-xs */
+            color: rgb(163, 163, 163); /* Neutral-400 equivalent */
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Three columns for goals */
+            gap: 1rem;
+            flex-grow: 1;
+            align-items: flex-end;
+            position: relative;
+            padding-bottom: 2rem; /* Space for x-axis labels */
+            border-bottom: 1px solid rgb(82, 82, 91); /* Neutral-600 equivalent */
+            border-left: 1px solid rgb(82, 82, 91); /* Neutral-600 equivalent */
+        }
+
+        .chart-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .chart-bar {
+            width: 20px; /* Width of each bar */
+            border-radius: 4px 4px 0 0; /* Rounded top corners */
+            transition: height 0.3s ease-out;
+            margin-bottom: 0.25rem; /* Space between bars and labels */
+        }
+
+        .chart-label-x {
+            position: absolute;
+            bottom: 0.5rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.875rem; /* text-sm */
+            color: rgb(200, 200, 200); /* Light gray text */
+        }
+
+        .chart-label-x div {
+            text-align: center;
+            width: calc(100% / 3); /* Distribute labels evenly */
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .profile-dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .profile-section {
+                min-height: auto;
+            }
+            
+            .goals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+
+            .profile-dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sip-table th,
+            .sip-table td {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .upload-section {
+                display: none;
+            }
+
+            .btn {
+                display: none;
+            }
+
+            .dashboard-header,
+            .profile-section,
+            .sip-section,
+            .chart-section {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h1 style="font-size: 32px; font-weight: 700; color: #1e293b; margin-bottom: 24px;">
+                Financial Dashboard Generator
+            </h1>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📊</div>
+                <div class="upload-text">Drop your Excel file here or click to browse</div>
+                <div class="upload-subtext">Supported format: .xlsx</div>
+                <input type="file" id="fileInput" accept=".xlsx" />
+            </div>
+            <button class="btn" onclick="generateSampleFile()">Download Sample Template</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Financial Dashboard</h1>
+                <div class="cube-logo">CUBE WEALTH</div>
+            </div>
+
+            <!-- Profile Overview and Goal Cards Grid -->
+            <div class="profile-dashboard-grid">
+                <!-- Profile Overview -->
+                <div class="profile-section">
+                    <h2 class="section-title">Profile Overview</h2>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div class="profile-label">Client Name</div>
+                            <div class="profile-value" id="clientName">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">Risk Profile</div>
+                            <div class="profile-value" id="riskProfile">-</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">Monthly Investment</div>
+                            <div class="profile-value investment-amount" id="monthlyInvestment">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Cards -->
+                <div class="goals-grid" id="goalsGrid">
+                    <!-- Goals will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- SIP Requirements -->
+            <div class="sip-section">
+                <h2 class="section-title">SIP Requirements Analysis</h2>
+                <table class="sip-table" id="sipTable">
+                    <thead>
+                        <tr>
+                            <th>Goal</th>
+                            <th>Target Amount</th>
+                            <th>Time Horizon (Years)</th>
+                            <th>Monthly SIP Required</th>
+                            <th>Projected Corpus</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- SIP data will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Investment Comparison Chart -->
+            <div class="chart-section">
+                <h2 class="section-title">Investment Comparison</h2>
+                <div class="chart-container">
+                    <canvas id="investmentChart"></canvas>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+               
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let financialData = {};
+        let investmentChart = null;
+
+        // Default investment percentages for projected corpus allocation (used if not found in Excel)
+        const defaultInvestmentPercentages = {
+            emergency: 0.20, // 20%
+            shortTerm: 0.15, // 15%
+            mediumTerm: 0.25, // 25%
+            longTerm: 0.40  // 40%
+        };
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+
+        // Drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile({ target: { files } });
+            }
+        });
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Use a custom modal for alert
+            if (!file.name.endsWith('.xlsx')) {
+                displayMessage('Please select a valid Excel file (.xlsx)');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    parseFinancialData(jsonData);
+                    showDashboard();
+                } catch (error) {
+                    displayMessage('Error reading Excel file. Please check the format and ensure it contains valid data.');
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function parseFinancialData(data) {
+            // Initialize financialData with default values
+            financialData = {
+                clientName: '',
+                riskProfile: '',
+                monthlyInvestment: 0,
+                goals: {
+                    emergency: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.emergency },
+                    shortTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.shortTerm },
+                    mediumTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.mediumTerm },
+                    longTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.longTerm }
+                }
+            };
+
+            // Parse the data
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                if (row.length < 2) continue;
+
+                const label = String(row[0]).toLowerCase().trim();
+                const value = row[1];
+
+                if (label.includes('client name') || label.includes('name')) {
+                    financialData.clientName = value;
+                } else if (label.includes('risk profile') || label.includes('risk')) {
+                    financialData.riskProfile = value;
+                } else if (label.includes('monthly investment capability') || label.includes('monthly investment')) {
+                    financialData.monthlyInvestment = parseFloat(value) || 0;
+                } else if (label.includes('emergency fund current') || label.includes('emergency current')) {
+                    financialData.goals.emergency.current = parseFloat(value) || 0;
+                } else if (label.includes('emergency fund target') || label.includes('emergency target')) {
+                    financialData.goals.emergency.target = parseFloat(value) || 0;
+                } else if (label.includes('short term current') || label.includes('short current')) {
+                    financialData.goals.shortTerm.current = parseFloat(value) || 0;
+                } else if (label.includes('short term target') || label.includes('short target')) {
+                    financialData.goals.shortTerm.target = parseFloat(value) || 0;
+                } else if (label.includes('medium term current') || label.includes('medium current')) {
+                    financialData.goals.mediumTerm.current = parseFloat(value) || 0;
+                } else if (label.includes('medium term target') || label.includes('medium target')) {
+                    financialData.goals.mediumTerm.target = parseFloat(value) || 0;
+                } else if (label.includes('long term current') || label.includes('long current')) {
+                    financialData.goals.longTerm.current = parseFloat(value) || 0;
+                } else if (label.includes('long term target') || label.includes('long target')) {
+                    financialData.goals.longTerm.target = parseFloat(value) || 0;
+                }
+                // Parse allocation percentages
+                else if (label.includes('emergency fund allocation') || label.includes('emergency allocation')) {
+                    financialData.goals.emergency.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.emergency;
+                } else if (label.includes('short term allocation') || label.includes('short allocation')) {
+                    financialData.goals.shortTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.shortTerm;
+                } else if (label.includes('medium term allocation') || label.includes('medium allocation')) {
+                    financialData.goals.mediumTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.mediumTerm;
+                } else if (label.includes('long term allocation') || label.includes('long allocation')) {
+                    financialData.goals.longTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.longTerm;
+                }
+            }
+        }
+
+        function showDashboard() {
+            document.querySelector('.upload-section').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            
+            populateProfileData();
+            populateGoalCards();
+            populateSIPTable();
+            createInvestmentChart();
+        }
+
+        function populateProfileData() {
+            const riskProfileElement = document.getElementById('riskProfile');
+            const riskProfileValue = financialData.riskProfile ? String(financialData.riskProfile).toLowerCase() : 'n/a';
+            riskProfileElement.textContent = financialData.riskProfile || 'N/A';
+            
+            // Remove existing risk classes
+            riskProfileElement.classList.remove('risk-low', 'risk-moderate', 'risk-high');
+
+            // Add class based on risk profile
+            if (riskProfileValue.includes('low')) {
+                riskProfileElement.classList.add('risk-low');
+            } else if (riskProfileValue.includes('moderate')) {
+                riskProfileElement.classList.add('risk-moderate');
+            } else if (riskProfileValue.includes('high') || riskProfileValue.includes('aggressive')) {
+                riskProfileElement.classList.add('risk-high');
+            }
+
+            document.getElementById('clientName').textContent = financialData.clientName || 'N/A';
+            document.getElementById('monthlyInvestment').textContent = 
+                '₹' + (financialData.monthlyInvestment || 0).toLocaleString('en-IN');
+        }
+
+        function populateGoalCards() {
+            const goals = [
+                { key: 'emergency', title: 'Emergency Fund', class: 'emergency' },
+                { key: 'shortTerm', title: 'Short Term Goal', class: 'short-term' },
+                { key: 'mediumTerm', title: 'Medium Term Goal', class: 'medium-term' },
+                { key: 'longTerm', title: 'Long Term Goal', class: 'long-term' }
+            ];
+
+            const goalsGrid = document.getElementById('goalsGrid');
+            goalsGrid.innerHTML = '';
+
+            goals.forEach(goal => {
+                const goalData = financialData.goals[goal.key];
+                const progress = goalData.target > 0 ? (goalData.current / goalData.target) * 100 : 0; // Set to 0 if target is 0
+                const progressClamped = Math.min(progress, 100);
+                
+                // Calculate circumference for SVG circle (radius 45, stroke-width 10, total 100px diameter)
+                const radius = 45;
+                const circumference = 2 * Math.PI * radius;
+                const dashoffset = circumference - (progressClamped / 100) * circumference;
+
+                const card = document.createElement('div');
+                card.className = 'goal-card';
+                card.innerHTML = `
+                    <div class="goal-title ${goal.class}">${goal.title}</div>
+                    <div class="progress-dial ${goal.class}">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="bg-circle" cx="50" cy="50" r="${radius}"></circle>
+                            <circle class="progress-circle" cx="50" cy="50" r="${radius}" 
+                                stroke-dasharray="${circumference}"
+                                stroke-dashoffset="${dashoffset}"></circle>
+                        </svg>
+                        <div class="progress-percentage">${Math.round(progressClamped)}%</div>
+                    </div>
+                    <div class="goal-details">
+                        <div class="goal-subtext">Current: ₹${goalData.current.toLocaleString('en-IN')} / Target: ₹${goalData.target.toLocaleString('en-IN')}</div>
+                    </div>
+                `;
+                goalsGrid.appendChild(card);
+            });
+        }
+
+        function populateSIPTable() {
+            const goals = [
+                { key: 'emergency', title: 'Emergency Fund', years: 1 },
+                { key: 'shortTerm', title: 'Short Term Goal', years: 3 },
+                { key: 'mediumTerm', title: 'Medium Term Goal', years: 7 },
+                { key: 'longTerm', title: 'Long Term Goal', years: 15 }
+            ];
+
+            const tbody = document.querySelector('#sipTable tbody');
+            tbody.innerHTML = '';
+
+            goals.forEach(goal => {
+                const goalData = financialData.goals[goal.key];
+                const requiredAmount = Math.max(0, goalData.target - goalData.current); // Ensure non-negative required amount
+                
+                let annualRate;
+                if (goal.key === 'emergency' || goal.key === 'shortTerm') {
+                    annualRate = 0.06; // 6% p.a.
+                } else {
+                    annualRate = 0.12; // 12% p.a.
+                }
+                const monthlyRate = annualRate / 12;
+                const months = goal.years * 12;
+                
+                let monthlySIP = 0;
+                if (requiredAmount > 0 && months > 0) {
+                    // SIP (P) = Target Amount (FV) / [((1+r)^n - 1) / r * (1+r)]
+                    // This is the formula for Annuity Due (payments at the beginning of the period)
+                    const factor = (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
+                    monthlySIP = requiredAmount / factor;
+                } else if (requiredAmount === 0) {
+                    monthlySIP = 0; // No SIP required if target is met
+                } else {
+                    monthlySIP = Infinity; // If months is 0 and requiredAmount > 0, cannot be met via SIP
+                }
+
+                // Calculate projected corpus using the assigned annual rate and specific allocation
+                const portionOfInvestment = financialData.monthlyInvestment * (financialData.goals[goal.key].allocationPercent || defaultInvestmentPercentages[goal.key]);
+
+                const projectedCorpus = goalData.current + (portionOfInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+
+                const isAchievable = projectedCorpus >= goalData.target;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${goal.title}</td>
+                    <td>₹${goalData.target.toLocaleString('en-IN')}</td>
+                    <td>${goal.years}</td>
+                    <td>${monthlySIP === Infinity ? 'N/A' : '₹' + monthlySIP.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                    <td class="${isAchievable ? 'projected-corpus-achievable' : 'projected-corpus-not-achievable'}">
+                        ₹${projectedCorpus.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                    </td>
+                    <td class="${isAchievable ? 'status-achievable' : 'status-not-achievable'}">
+                        ${isAchievable ? 'Achievable' : 'Not Achievable'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createInvestmentChart() {
+            const ctx = document.getElementById('investmentChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (investmentChart) {
+                investmentChart.destroy();
+            }
+
+            const goals = ['Emergency Fund', 'Short Term', 'Medium Term', 'Long Term'];
+            const projectedCorpusData = [];
+            const currentInvestmentData = []; 
+
+            // Populate chart data based on parsed financialData
+            goals.forEach((goalTitle, index) => {
+                let goalKey;
+                switch(goalTitle) {
+                    case 'Emergency Fund': goalKey = 'emergency'; break;
+                    case 'Short Term': goalKey = 'shortTerm'; break;
+                    case 'Medium Term': goalKey = 'mediumTerm'; break;
+                    case 'Long Term': goalKey = 'longTerm'; break;
+                }
+
+                const goalData = financialData.goals[goalKey];
+                
+                let annualRate;
+                if (goalKey === 'emergency' || goalKey === 'shortTerm') {
+                    annualRate = 0.06; // 6% p.a.
+                } else {
+                    annualRate = 0.12; // 12% p.a.
+                }
+                const monthlyRate = annualRate / 12;
+                const years = [1, 3, 7, 15][index]; // Corresponding years for each goal
+                const months = years * 12;
+
+                // Use specific allocation for projected corpus in chart
+                const portionOfInvestment = financialData.monthlyInvestment * (financialData.goals[goalKey].allocationPercent || defaultInvestmentPercentages[goalKey]);
+                const projectedCorpus = goalData.current + (portionOfInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+                
+                projectedCorpusData.push(projectedCorpus);
+                currentInvestmentData.push(goalData.current);
+            });
+
+            investmentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: goals,
+                    datasets: [
+                        {
+                            label: 'Current Investment',
+                            data: currentInvestmentData,
+                            backgroundColor: 'rgba(74, 222, 128, 0.8)', // Green for current
+                            borderColor: 'rgba(74, 222, 128, 1)',
+                            borderWidth: 1,
+                        },
+                        {
+                            label: 'Projected Corpus',
+                            data: projectedCorpusData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // Blue for projected
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', // Make the chart horizontal
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        y: { // This is now the categorical axis
+                            stacked: false, 
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)'
+                            },
+                            ticks: {
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            categoryPercentage: 0.6, /* Reduced to make categories narrower */
+                            barPercentage: 0.8 /* Reduced to make individual bars thinner */
+                        },
+                        x: { // This is now the value axis
+                            stacked: false, 
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)'
+                            },
+                            ticks: {
+                                color: 'rgb(200, 200, 200)',
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgb(200, 200, 200)',
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'rgb(255, 255, 255)',
+                            bodyColor: 'rgb(255, 255, 255)',
+                            borderColor: 'rgba(75, 85, 99, 0.5)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.parsed.x.toLocaleString('en-IN'); // Use parsed.x for horizontal bars
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('dashboard');
+            const opt = {
+                margin: 0.5,
+                filename: 'financial-dashboard.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function resetDashboard() {
+            document.querySelector('.upload-section').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('fileInput').value = '';
+            financialData = {};
+            if (investmentChart) {
+                investmentChart.destroy(); // Destroy chart on reset
+                investmentChart = null;
+            }
+            // Clear profile data and goals grid
+            document.getElementById('clientName').textContent = '-';
+            document.getElementById('riskProfile').textContent = '-';
+            document.getElementById('monthlyInvestment').textContent = '-';
+            document.getElementById('goalsGrid').innerHTML = '';
+            document.querySelector('#sipTable tbody').innerHTML = '';
+        }
+
+        function generateSampleFile() {
+            const sampleData = [
+                ['Client Name', 'John Doe'],
+                ['Risk Profile', 'Moderate'],
+                ['Monthly Investment Capability', 25000],
+                ['Emergency Fund Current', 50000],
+                ['Emergency Fund Target', 150000],
+                ['Short Term Current', 30000],
+                ['Short Term Target', 200000],
+                ['Medium Term Current', 100000],
+                ['Medium Term Target', 500000],
+                ['Long Term Current', 200000],
+                ['Long Term Target', 2000000],
+                ['Emergency Fund Allocation', 0.20],
+                ['Short Term Allocation', 0.15],
+                ['Medium Term Allocation', 0.25],
+                ['Long Term Allocation', 0.40]
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(sampleData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Financial Data');
+            XLSX.writeFile(wb, 'financial-data-template.xlsx');
+        }
+
+        // Custom message box instead of alert()
+        function displayMessage(message) {
+            const messageBox = document.createElement('div');
+            messageBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #2d3748;
+                color: white;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            `;
+            messageBox.innerHTML = `
+                <p>${message}</p>
+                <button style="background-color: #3b82f6; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">OK</button>
+            `;
+            document.body.appendChild(messageBox);
+
+            messageBox.querySelector('button').addEventListener('click', () => {
+                document.body.removeChild(messageBox);
+            });
+        }
+    </script>
+</body>
+</html>
