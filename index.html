@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Dashboard - Cube Wealth</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -50,87 +49,111 @@
             padding: 1rem 1.5rem 2rem;
         }
 
-        /* Upload Section */
-        .upload-section {
+        /* Input Control Section (now a 'page') */
+        .input-controls-section {
             background: rgb(39, 39, 42);
             border-radius: 12px;
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
             border: 1px solid rgb(63, 63, 70);
-            text-align: center;
         }
 
-        .upload-area {
-            border: 2px dashed rgb(82, 82, 91);
+        /* Styling for categories within the input section */
+        .input-category {
+            background: rgb(48, 48, 51); /* Slightly lighter background for categories */
             border-radius: 8px;
-            padding: 40px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: rgba(63, 63, 70, 0.3);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgb(63, 63, 70);
         }
 
-        .upload-area:hover {
-            border-color: rgb(96, 165, 250); /* Blue-400 */
-            background-color: rgba(96, 165, 250, 0.1);
-        }
-
-        .upload-area.dragover {
-            border-color: rgb(96, 165, 250);
-            background-color: rgba(96, 165, 250, 0.2);
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            color: rgb(148, 163, 184);
-            margin-bottom: 16px;
-        }
-
-        .upload-text {
-            font-size: 18px;
-            color: rgb(200, 200, 200);
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .upload-subtext {
-            font-size: 14px;
-            color: rgb(163, 163, 163);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, rgb(96, 165, 250) 0%, rgb(59, 130, 246) 100%);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
+        .input-category h3 {
+            font-size: 1.25rem; /* text-xl */
             font-weight: 600;
+            color: rgb(147, 197, 253); /* Blue-300 */
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgb(63, 63, 70);
+        }
+
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgb(229, 231, 235);
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group select {
+            background-color: rgb(63, 63, 70);
+            border: 1px solid rgb(82, 82, 91);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 1rem;
+            color: rgb(255, 255, 255);
+            width: 100%;
+            max-width: 300px; /* Limit width for consistency on larger screens */
+        }
+
+        .input-group input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgb(82, 82, 91); /* Track color */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            margin-top: 5px;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgb(96, 165, 250); /* Thumb color */
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 16px;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(96, 165, 250, 0.3);
+        .input-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgb(96, 165, 250); /* Thumb color */
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, rgb(236, 72, 153) 0%, rgb(219, 39, 119) 100%);
+        .input-group .slider-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-group .slider-display span {
+            min-width: 60px; /* Ensure space for value */
+            text-align: right;
+            font-weight: 600;
+            color: rgb(96, 165, 250); /* Blue-400 */
         }
 
         /* Dashboard */
         .dashboard {
-            display: none;
-        }
-
-        .dashboard.active {
-            display: block;
+            display: block; /* Always show dashboard, populated by inputs */
         }
 
         .dashboard-header {
@@ -177,7 +200,7 @@
             padding: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
             border: 1px solid rgb(63, 63, 70);
-            height: 460px; /* Increased to match goal cards grid */
+            min-height: 460px; /* Use min-height, remove fixed height */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -246,7 +269,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            height: 460px;
+            min-height: 460px; /* Use min-height, remove fixed height */
         }
 
         .goal-card {
@@ -260,7 +283,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 220px;
+            min-height: 220px; /* Use min-height, remove fixed height */
         }
 
         /* Goal title colors */
@@ -571,6 +594,12 @@
                 padding: 8px 12px;
                 font-size: 0.75rem;
             }
+            /* Adjust input field max-width for better mobile use */
+            .input-group input[type="text"],
+            .input-group input[type="number"],
+            .input-group select {
+                max-width: 100%; /* Allow inputs to take full width */
+            }
         }
 
         /* Print Styles */
@@ -582,11 +611,7 @@
                 print-color-adjust: exact;
             }
 
-            .upload-section {
-                display: none;
-            }
-
-            .btn {
+            .input-controls-section { /* Hide input controls on print */
                 display: none;
             }
 
@@ -603,22 +628,161 @@
 </head>
 <body>
     <div class="container">
-        <!-- Upload Section -->
-        <div class="upload-section">
-            <h1 style="font-size: 32px; font-weight: 700; color: #1e293b; margin-bottom: 24px;">
-                Financial Dashboard Generator
-            </h1>
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📊</div>
-                <div class="upload-text">Drop your Excel file here or click to browse</div>
-                <div class="upload-subtext">Supported format: .xlsx</div>
-                <input type="file" id="fileInput" accept=".xlsx" />
+        <!-- Input Controls Section -->
+        <div id="inputPage" class="input-controls-section">
+            <h2 class="section-title">Enter Financial Details</h2>
+
+            <div class="input-category">
+                <h3>Client Profile</h3>
+                <div class="input-group">
+                    <label for="clientNameInput">Client Name</label>
+                    <input type="text" id="clientNameInput" value="John Doe">
+                </div>
+
+                <div class="input-group">
+                    <label for="riskProfileSelect">Risk Profile</label>
+                    <select id="riskProfileSelect">
+                        <option value="Low">Low</option>
+                        <option value="Moderate" selected>Moderate</option>
+                        <option value="High">High</option>
+                        <option value="Aggressive">Aggressive</option>
+                    </select>
+                </div>
             </div>
-            <button class="btn" onclick="generateSampleFile()">Download Sample Template</button>
+
+            <div class="input-category">
+                <h3>Overall Investment Parameters</h3>
+                <div class="input-group">
+                    <label for="monthlyInvestmentRange">Monthly Investment: ₹<span id="monthlyInvestmentDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="monthlyInvestmentRange" min="0" max="200000" step="5000" value="25000">
+                        <input type="number" id="monthlyInvestmentNumber" min="0" max="200000" step="1000" value="25000">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="interestRateESRange">Interest Rate (Emergency/Short-Term p.a.): <span id="interestRateESDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="interestRateESRange" min="1" max="10" step="0.5" value="6">
+                        <input type="number" id="interestRateESNumber" min="1" max="10" step="0.1" value="6">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="interestRateMLRange">Interest Rate (Medium/Long-Term p.a.): <span id="interestRateMLDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="interestRateMLRange" min="5" max="20" step="0.5" value="12">
+                        <input type="number" id="interestRateMLNumber" min="5" max="20" step="0.1" value="12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-category">
+                <h3>Goal Details (Current & Target)</h3>
+                <div class="input-group">
+                    <label for="emergencyCurrentRange">Emergency Fund Current: ₹<span id="emergencyCurrentDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="emergencyCurrentRange" min="0" max="500000" step="1000" value="50000">
+                        <input type="number" id="emergencyCurrentNumber" min="0" max="500000" step="100" value="50000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="emergencyTargetRange">Emergency Fund Target: ₹<span id="emergencyTargetDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="emergencyTargetRange" min="0" max="1000000" step="10000" value="150000">
+                        <input type="number" id="emergencyTargetNumber" min="0" max="1000000" step="1000" value="150000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="shortTermCurrentRange">Short Term Current: ₹<span id="shortTermCurrentDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="shortTermCurrentRange" min="0" max="500000" step="1000" value="30000">
+                        <input type="number" id="shortTermCurrentNumber" min="0" max="500000" step="100" value="30000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="shortTermTargetRange">Short Term Target: ₹<span id="shortTermTargetDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="shortTermTargetRange" min="0" max="1000000" step="10000" value="200000">
+                        <input type="number" id="shortTermTargetNumber" min="0" max="1000000" step="1000" value="200000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="mediumTermCurrentRange">Medium Term Current: ₹<span id="mediumTermCurrentDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="mediumTermCurrentRange" min="0" max="1000000" step="5000" value="100000">
+                        <input type="number" id="mediumTermCurrentNumber" min="0" max="1000000" step="1000" value="100000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="mediumTermTargetRange">Medium Term Target: ₹<span id="mediumTermTargetDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="mediumTermTargetRange" min="0" max="2000000" step="10000" value="500000">
+                        <input type="number" id="mediumTermTargetNumber" min="0" max="2000000" step="1000" value="500000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="longTermCurrentRange">Long Term Current: ₹<span id="longTermCurrentDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="longTermCurrentRange" min="0" max="2000000" step="10000" value="200000">
+                        <input type="number" id="longTermCurrentNumber" min="0" max="2000000" step="1000" value="200000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="longTermTargetRange">Long Term Target: ₹<span id="longTermTargetDisplay"></span></label>
+                    <div class="slider-display">
+                        <input type="range" id="longTermTargetRange" min="0" max="5000000" step="50000" value="2000000">
+                        <input type="number" id="longTermTargetNumber" min="0" max="5000000" step="10000" value="2000000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-category">
+                <h3>Goal Allocation Percentages</h3>
+                <div class="input-group">
+                    <label for="emergencyAllocationRange">Emergency Fund Allocation: <span id="emergencyAllocationDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="emergencyAllocationRange" min="0" max="100" step="1" value="20">
+                        <input type="number" id="emergencyAllocationNumber" min="0" max="100" step="0.1" value="20">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="shortTermAllocationRange">Short Term Allocation: <span id="shortTermAllocationDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="shortTermAllocationRange" min="0" max="100" step="1" value="15">
+                        <input type="number" id="shortTermAllocationNumber" min="0" max="100" step="0.1" value="15">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="mediumTermAllocationRange">Medium Term Allocation: <span id="mediumTermAllocationDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="mediumTermAllocationRange" min="0" max="100" step="1" value="25">
+                        <input type="number" id="mediumTermAllocationNumber" min="0" max="100" step="0.1" value="25">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="longTermAllocationRange">Long Term Allocation: <span id="longTermAllocationDisplay"></span>%</label>
+                    <div class="slider-display">
+                        <input type="range" id="longTermAllocationRange" min="0" max="100" step="1" value="40">
+                        <input type="number" id="longTermAllocationNumber" min="0" max="100" step="0.1" value="40">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="showDashboardPage()">Generate Dashboard</button>
         </div>
 
-        <!-- Dashboard -->
-        <div class="dashboard" id="dashboard">
+        <!-- Dashboard Section (now a 'page') -->
+        <div id="dashboardPage" class="dashboard" style="display: none;">
             <div class="dashboard-header">
                 <h1 class="dashboard-title">Financial Dashboard</h1>
                 <div class="cube-logo">CUBE WEALTH</div>
@@ -661,6 +825,7 @@
                             <th>Target Amount</th>
                             <th>Time Horizon (Years)</th>
                             <th>Monthly SIP Required</th>
+                            <th>Current Monthly Allocation</th> <!-- New column header -->
                             <th>Projected Corpus</th>
                             <th>Status</th>
                         </tr>
@@ -678,9 +843,9 @@
                     <canvas id="investmentChart"></canvas>
                 </div>
             </div>
-
+            
             <div style="text-align: center; margin-top: 30px;">
-               
+                <button class="btn btn-secondary" onclick="showInputPage()">Back to Inputs</button>
             </div>
         </div>
     </div>
@@ -689,133 +854,193 @@
         let financialData = {};
         let investmentChart = null;
 
-        // Default investment percentages for projected corpus allocation (used if not found in Excel)
-        const defaultInvestmentPercentages = {
+        // Default investment percentages for projected corpus allocation
+        // These are used as initial values for the inputs and as fallback if input parsing fails
+        const initialInvestmentPercentages = {
             emergency: 0.20, // 20%
             shortTerm: 0.15, // 15%
             mediumTerm: 0.25, // 25%
             longTerm: 0.40  // 40%
         };
 
-        // File upload handling
-        document.getElementById('fileInput').addEventListener('change', handleFile);
+        // Initialize financialData by reading directly from input controls
+        function initializeFinancialData() {
+            let totalAllocation = 0;
 
-        // Drag and drop
-        const uploadArea = document.querySelector('.upload-area');
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile({ target: { files } });
-            }
-        });
-
-        function handleFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Use a custom modal for alert
-            if (!file.name.endsWith('.xlsx')) {
-                displayMessage('Please select a valid Excel file (.xlsx)');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
-                    parseFinancialData(jsonData);
-                    showDashboard();
-                } catch (error) {
-                    displayMessage('Error reading Excel file. Please check the format and ensure it contains valid data.');
-                    console.error(error);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function parseFinancialData(data) {
-            // Initialize financialData with default values
             financialData = {
-                clientName: '',
-                riskProfile: '',
-                monthlyInvestment: 0,
+                clientName: document.getElementById('clientNameInput').value,
+                riskProfile: document.getElementById('riskProfileSelect').value,
+                monthlyInvestment: parseFloat(document.getElementById('monthlyInvestmentNumber').value) || 0,
+                interestRateES: parseFloat(document.getElementById('interestRateESNumber').value) / 100, // Convert percentage to decimal
+                interestRateML: parseFloat(document.getElementById('interestRateMLNumber').value) / 100, // Convert percentage to decimal
+                
                 goals: {
-                    emergency: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.emergency },
-                    shortTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.shortTerm },
-                    mediumTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.mediumTerm },
-                    longTerm: { current: 0, target: 0, allocationPercent: defaultInvestmentPercentages.longTerm }
+                    emergency: { 
+                        current: parseFloat(document.getElementById('emergencyCurrentNumber').value) || 0, 
+                        target: parseFloat(document.getElementById('emergencyTargetNumber').value) || 0, 
+                        // Fix for 0% allocation: explicitly check for null/undefined/empty string, not just falsy
+                        allocationPercent: (() => { 
+                            const val = document.getElementById('emergencyAllocationNumber').value;
+                            // Check if val is an empty string, null, or undefined, or if parseFloat results in NaN
+                            if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) {
+                                return initialInvestmentPercentages.emergency;
+                            }
+                            return parseFloat(val) / 100;
+                        })()
+                    },
+                    shortTerm: { 
+                        current: parseFloat(document.getElementById('shortTermCurrentNumber').value) || 0, 
+                        target: parseFloat(document.getElementById('shortTermTargetNumber').value) || 0, 
+                        allocationPercent: (() => {
+                            const val = document.getElementById('shortTermAllocationNumber').value;
+                            if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) {
+                                return initialInvestmentPercentages.shortTerm;
+                            }
+                            return parseFloat(val) / 100;
+                        })()
+                    },
+                    mediumTerm: { 
+                        current: parseFloat(document.getElementById('mediumTermCurrentNumber').value) || 0, 
+                        target: parseFloat(document.getElementById('mediumTermTargetNumber').value) || 0, 
+                        allocationPercent: (() => {
+                            const val = document.getElementById('mediumTermAllocationNumber').value;
+                            if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) {
+                                return initialInvestmentPercentages.mediumTerm;
+                            }
+                            return parseFloat(val) / 100;
+                        })()
+                    },
+                    longTerm: { 
+                        current: parseFloat(document.getElementById('longTermCurrentNumber').value) || 0, 
+                        target: parseFloat(document.getElementById('longTermTargetNumber').value) || 0, 
+                        allocationPercent: (() => {
+                            const val = document.getElementById('longTermAllocationNumber').value;
+                            if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) {
+                                return initialInvestmentPercentages.longTerm;
+                            }
+                            return parseFloat(val) / 100;
+                        })()
+                    }
                 }
             };
 
-            // Parse the data
-            for (let i = 0; i < data.length; i++) {
-                const row = data[i];
-                if (row.length < 2) continue;
+            // Calculate total allocation for validation
+            totalAllocation = (financialData.goals.emergency.allocationPercent +
+                               financialData.goals.shortTerm.allocationPercent +
+                               financialData.goals.mediumTerm.allocationPercent +
+                               financialData.goals.longTerm.allocationPercent) * 100; // Convert back to percentage for comparison
 
-                const label = String(row[0]).toLowerCase().trim();
-                const value = row[1];
-
-                if (label.includes('client name') || label.includes('name')) {
-                    financialData.clientName = value;
-                } else if (label.includes('risk profile') || label.includes('risk')) {
-                    financialData.riskProfile = value;
-                } else if (label.includes('monthly investment capability') || label.includes('monthly investment')) {
-                    financialData.monthlyInvestment = parseFloat(value) || 0;
-                } else if (label.includes('emergency fund current') || label.includes('emergency current')) {
-                    financialData.goals.emergency.current = parseFloat(value) || 0;
-                } else if (label.includes('emergency fund target') || label.includes('emergency target')) {
-                    financialData.goals.emergency.target = parseFloat(value) || 0;
-                } else if (label.includes('short term current') || label.includes('short current')) {
-                    financialData.goals.shortTerm.current = parseFloat(value) || 0;
-                } else if (label.includes('short term target') || label.includes('short target')) {
-                    financialData.goals.shortTerm.target = parseFloat(value) || 0;
-                } else if (label.includes('medium term current') || label.includes('medium current')) {
-                    financialData.goals.mediumTerm.current = parseFloat(value) || 0;
-                } else if (label.includes('medium term target') || label.includes('medium target')) {
-                    financialData.goals.mediumTerm.target = parseFloat(value) || 0;
-                } else if (label.includes('long term current') || label.includes('long current')) {
-                    financialData.goals.longTerm.current = parseFloat(value) || 0;
-                } else if (label.includes('long term target') || label.includes('long target')) {
-                    financialData.goals.longTerm.target = parseFloat(value) || 0;
-                }
-                // Parse allocation percentages
-                else if (label.includes('emergency fund allocation') || label.includes('emergency allocation')) {
-                    financialData.goals.emergency.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.emergency;
-                } else if (label.includes('short term allocation') || label.includes('short allocation')) {
-                    financialData.goals.shortTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.shortTerm;
-                } else if (label.includes('medium term allocation') || label.includes('medium allocation')) {
-                    financialData.goals.mediumTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.mediumTerm;
-                } else if (label.includes('long term allocation') || label.includes('long allocation')) {
-                    financialData.goals.longTerm.allocationPercent = parseFloat(value) || defaultInvestmentPercentages.longTerm;
-                }
-            }
+            // Set validation flag
+            // Check if totalAllocation is significantly different from 100%
+            financialData.allocationInvalid = Math.abs(totalAllocation - 100) > 0.01; // Allow for minor floating point inaccuracies
         }
 
-        function showDashboard() {
-            document.querySelector('.upload-section').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-            
+        // Function to update display and sync slider/number inputs
+        function setupHybridInput(rangeId, numberId, displayId, prefix = '', suffix = '') {
+            const rangeInput = document.getElementById(rangeId);
+            const numberInput = document.getElementById(numberId);
+            const displaySpan = document.getElementById(displayId);
+
+            // Initial display update
+            // Format numbers with toLocaleString and add prefix/suffix
+            const updateDisplay = (value) => {
+                if (displaySpan) {
+                    if (prefix === '₹') { // For currency, use currency formatting
+                        displaySpan.textContent = value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    } else { // For percentages or plain numbers
+                        displaySpan.textContent = `${value.toLocaleString('en-IN')}${suffix}`; // Removed redundant % here
+                    }
+                }
+            };
+            updateDisplay(numberInput.value);
+
+            // Sync range to number
+            rangeInput.addEventListener('input', () => {
+                numberInput.value = rangeInput.value;
+                updateDisplay(rangeInput.value);
+                // No updateDashboard() call here, it's triggered by the button
+            });
+
+            // Sync number to range
+            numberInput.addEventListener('input', () => {
+                let value = parseFloat(numberInput.value);
+                if (isNaN(value)) value = 0;
+                value = Math.max(parseFloat(numberInput.min), Math.min(value, parseFloat(numberInput.max)));
+                
+                rangeInput.value = value;
+                updateDisplay(value);
+                // No updateDashboard() call here, it's triggered by the button
+            });
+
+            // Handle blur on number input to re-sync if invalid input
+            numberInput.addEventListener('change', () => {
+                let value = parseFloat(numberInput.value);
+                if (isNaN(value)) value = 0;
+                value = Math.max(parseFloat(numberInput.min), Math.min(value, parseFloat(numberInput.max)));
+                numberInput.value = value; // Force valid value
+                rangeInput.value = value;
+                updateDisplay(value);
+                // No updateDashboard() call here, it's triggered by the button
+            });
+        }
+
+        // Central function to update dashboard after any input change
+        function updateDashboard() {
+            initializeFinancialData(); // Re-read all input values
+            if (financialData.allocationInvalid) {
+                displayMessage("Total Goal Allocation Percentages must sum up to exactly 100%. Please adjust your allocations.");
+                return; // Stop dashboard generation if invalid
+            }
             populateProfileData();
             populateGoalCards();
             populateSIPTable();
             createInvestmentChart();
         }
+
+        // Function to show the dashboard page and hide the input page
+        function showDashboardPage() {
+            updateDashboard(); // First, update data based on current inputs
+            // Only proceed to show dashboard page if allocation is valid
+            if (!financialData.allocationInvalid) {
+                document.getElementById('inputPage').style.display = 'none';
+                document.getElementById('dashboardPage').style.display = 'block';
+            }
+        }
+
+        // Function to show the input page and hide the dashboard page
+        function showInputPage() {
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('inputPage').style.display = 'block';
+        }
+
+        // Setup input controls and initial dashboard render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup hybrid inputs for all relevant fields
+            setupHybridInput('monthlyInvestmentRange', 'monthlyInvestmentNumber', 'monthlyInvestmentDisplay', '₹');
+            setupHybridInput('emergencyCurrentRange', 'emergencyCurrentNumber', 'emergencyCurrentDisplay', '₹');
+            setupHybridInput('emergencyTargetRange', 'emergencyTargetNumber', 'emergencyTargetDisplay', '₹');
+            setupHybridInput('shortTermCurrentRange', 'shortTermCurrentNumber', 'shortTermCurrentDisplay', '₹');
+            setupHybridInput('shortTermTargetRange', 'shortTermTargetNumber', 'shortTermTargetDisplay', '₹');
+            setupHybridInput('mediumTermCurrentRange', 'mediumTermCurrentNumber', 'mediumTermCurrentDisplay', '₹');
+            setupHybridInput('mediumTermTargetRange', 'mediumTermTargetNumber', 'mediumTermTargetDisplay', '₹');
+            setupHybridInput('longTermCurrentRange', 'longTermCurrentNumber', 'longTermCurrentDisplay', '₹');
+            setupHybridInput('longTermTargetRange', 'longTermTargetNumber', 'longTermTargetDisplay', '₹');
+            setupHybridInput('emergencyAllocationRange', 'emergencyAllocationNumber', 'emergencyAllocationDisplay', '', ); // Added % suffix
+            setupHybridInput('shortTermAllocationRange', 'shortTermAllocationNumber', 'shortTermAllocationDisplay', '', ); // Added % suffix
+            setupHybridInput('mediumTermAllocationRange', 'mediumTermAllocationNumber', 'mediumTermAllocationDisplay', '', ); // Added % suffix
+            setupHybridInput('longTermAllocationRange', 'longTermAllocationNumber', 'longTermAllocationDisplay', '', ); // Added % suffix
+            setupHybridInput('interestRateESRange', 'interestRateESNumber', 'interestRateESDisplay', '', ''); // %
+            setupHybridInput('interestRateMLRange', 'interestRateMLNumber', 'interestRateMLDisplay', '', ''); // %
+
+            // Listen for changes on client name and risk profile (not triggering dashboard update, only for button click)
+            document.getElementById('clientNameInput').addEventListener('input', () => {});
+            document.getElementById('riskProfileSelect').addEventListener('change', () => {});
+
+            // Initial dashboard render with default values
+            // This is done to ensure the dashboard is populated when the page loads, even if not explicitly generated
+            updateDashboard(); // Run initial validation and display defaults if valid
+        });
+
 
         function populateProfileData() {
             const riskProfileElement = document.getElementById('riskProfile');
@@ -835,8 +1060,9 @@
             }
 
             document.getElementById('clientName').textContent = financialData.clientName || 'N/A';
+            // Use toLocaleString with currency style for the main monthly investment display
             document.getElementById('monthlyInvestment').textContent = 
-                '₹' + (financialData.monthlyInvestment || 0).toLocaleString('en-IN');
+                financialData.monthlyInvestment.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
         function populateGoalCards() {
@@ -874,7 +1100,7 @@
                         <div class="progress-percentage">${Math.round(progressClamped)}%</div>
                     </div>
                     <div class="goal-details">
-                        <div class="goal-subtext">Current: ₹${goalData.current.toLocaleString('en-IN')} / Target: ₹${goalData.target.toLocaleString('en-IN')}</div>
+                        <div class="goal-subtext">Current: ${goalData.current.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })} / Target: ${goalData.target.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                     </div>
                 `;
                 goalsGrid.appendChild(card);
@@ -894,44 +1120,44 @@
 
             goals.forEach(goal => {
                 const goalData = financialData.goals[goal.key];
-                const requiredAmount = Math.max(0, goalData.target - goalData.current); // Ensure non-negative required amount
+                const requiredAmount = Math.max(0, goalData.target - goalData.current); 
                 
                 let annualRate;
                 if (goal.key === 'emergency' || goal.key === 'shortTerm') {
-                    annualRate = 0.06; // 6% p.a.
+                    annualRate = financialData.interestRateES;
                 } else {
-                    annualRate = 0.12; // 12% p.a.
+                    annualRate = financialData.interestRateML;
                 }
                 const monthlyRate = annualRate / 12;
                 const months = goal.years * 12;
                 
                 let monthlySIP = 0;
                 if (requiredAmount > 0 && months > 0) {
-                    // SIP (P) = Target Amount (FV) / [((1+r)^n - 1) / r * (1+r)]
-                    // This is the formula for Annuity Due (payments at the beginning of the period)
                     const factor = (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
                     monthlySIP = requiredAmount / factor;
                 } else if (requiredAmount === 0) {
-                    monthlySIP = 0; // No SIP required if target is met
+                    monthlySIP = 0; 
                 } else {
-                    monthlySIP = Infinity; // If months is 0 and requiredAmount > 0, cannot be met via SIP
+                    monthlySIP = Infinity; 
                 }
 
-                // Calculate projected corpus using the assigned annual rate and specific allocation
-                const portionOfInvestment = financialData.monthlyInvestment * (financialData.goals[goal.key].allocationPercent || defaultInvestmentPercentages[goal.key]);
+                const currentMonthlyAllocation = financialData.monthlyInvestment * financialData.goals[goal.key].allocationPercent;
 
-                const projectedCorpus = goalData.current + (portionOfInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+                // Projected Corpus = (Current Amount * (1 + Monthly Rate)^Months) + (Monthly Current Allocation * [((1 + Monthly Rate)^Months - 1) / Monthly Rate] * (1 + Monthly Rate))
+                const projectedCorpus = (goalData.current * Math.pow(1 + monthlyRate, months)) + 
+                                        (currentMonthlyAllocation * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate));
 
                 const isAchievable = projectedCorpus >= goalData.target;
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${goal.title}</td>
-                    <td>₹${goalData.target.toLocaleString('en-IN')}</td>
+                    <td>${goalData.target.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                     <td>${goal.years}</td>
-                    <td>${monthlySIP === Infinity ? 'N/A' : '₹' + monthlySIP.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</td>
+                    <td>${monthlySIP === Infinity ? 'N/A' : monthlySIP.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                    <td>${currentMonthlyAllocation.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td> <!-- New cell for Current Monthly Allocation -->
                     <td class="${isAchievable ? 'projected-corpus-achievable' : 'projected-corpus-not-achievable'}">
-                        ₹${projectedCorpus.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                        ${projectedCorpus.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </td>
                     <td class="${isAchievable ? 'status-achievable' : 'status-not-achievable'}">
                         ${isAchievable ? 'Achievable' : 'Not Achievable'}
@@ -953,7 +1179,6 @@
             const projectedCorpusData = [];
             const currentInvestmentData = []; 
 
-            // Populate chart data based on parsed financialData
             goals.forEach((goalTitle, index) => {
                 let goalKey;
                 switch(goalTitle) {
@@ -967,17 +1192,18 @@
                 
                 let annualRate;
                 if (goalKey === 'emergency' || goalKey === 'shortTerm') {
-                    annualRate = 0.06; // 6% p.a.
+                    annualRate = financialData.interestRateES;
                 } else {
-                    annualRate = 0.12; // 12% p.a.
+                    annualRate = financialData.interestRateML;
                 }
                 const monthlyRate = annualRate / 12;
-                const years = [1, 3, 7, 15][index]; // Corresponding years for each goal
+                const years = [1, 3, 7, 15][index]; 
                 const months = years * 12;
 
-                // Use specific allocation for projected corpus in chart
-                const portionOfInvestment = financialData.monthlyInvestment * (financialData.goals[goalKey].allocationPercent || defaultInvestmentPercentages[goalKey]);
-                const projectedCorpus = goalData.current + (portionOfInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+                const portionOfInvestment = financialData.monthlyInvestment * financialData.goals[goalKey].allocationPercent;
+                // Projected Corpus = (Current Amount * (1 + Monthly Rate)^Months) + (Monthly Current Allocation * [((1 + Monthly Rate)^Months - 1) / Monthly Rate] * (1 + Monthly Rate))
+                const projectedCorpus = (goalData.current * Math.pow(1 + monthlyRate, months)) + 
+                                        (portionOfInvestment * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate));
                 
                 projectedCorpusData.push(projectedCorpus);
                 currentInvestmentData.push(goalData.current);
@@ -1005,14 +1231,14 @@
                     ]
                 },
                 options: {
-                    indexAxis: 'y', // Make the chart horizontal
+                    indexAxis: 'y', 
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: {
                         intersect: false,
                     },
                     scales: {
-                        y: { // This is now the categorical axis
+                        y: { 
                             stacked: false, 
                             grid: {
                                 color: 'rgba(75, 85, 99, 0.3)'
@@ -1020,10 +1246,10 @@
                             ticks: {
                                 color: 'rgb(200, 200, 200)'
                             },
-                            categoryPercentage: 0.6, /* Reduced to make categories narrower */
-                            barPercentage: 0.8 /* Reduced to make individual bars thinner */
+                            categoryPercentage: 0.6, 
+                            barPercentage: 0.8 
                         },
-                        x: { // This is now the value axis
+                        x: { 
                             stacked: false, 
                             beginAtZero: true,
                             grid: {
@@ -1032,7 +1258,7 @@
                             ticks: {
                                 color: 'rgb(200, 200, 200)',
                                 callback: function(value) {
-                                    return '₹' + value.toLocaleString('en-IN');
+                                    return value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
                                 }
                             }
                         }
@@ -1056,7 +1282,7 @@
                             borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ₹' + context.parsed.x.toLocaleString('en-IN'); // Use parsed.x for horizontal bars
+                                    return context.dataset.label + ': ' + context.parsed.x.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }); 
                                 }
                             }
                         }
@@ -1071,56 +1297,21 @@
                 margin: 0.5,
                 filename: 'financial-dashboard.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 1, useCORS: true },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                html2canvas: { 
+                    scale: 0.8, 
+                    useCORS: true,
+                    width: document.querySelector('.container').offsetWidth,
+                }, 
+                jsPDF: { 
+                    unit: 'in', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { mode: 'avoid-all' } 
             };
-
             html2pdf().set(opt).from(element).save();
         }
 
-        function resetDashboard() {
-            document.querySelector('.upload-section').style.display = 'block';
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('fileInput').value = '';
-            financialData = {};
-            if (investmentChart) {
-                investmentChart.destroy(); // Destroy chart on reset
-                investmentChart = null;
-            }
-            // Clear profile data and goals grid
-            document.getElementById('clientName').textContent = '-';
-            document.getElementById('riskProfile').textContent = '-';
-            document.getElementById('monthlyInvestment').textContent = '-';
-            document.getElementById('goalsGrid').innerHTML = '';
-            document.querySelector('#sipTable tbody').innerHTML = '';
-        }
-
-        function generateSampleFile() {
-            const sampleData = [
-                ['Client Name', 'John Doe'],
-                ['Risk Profile', 'Moderate'],
-                ['Monthly Investment Capability', 25000],
-                ['Emergency Fund Current', 50000],
-                ['Emergency Fund Target', 150000],
-                ['Short Term Current', 30000],
-                ['Short Term Target', 200000],
-                ['Medium Term Current', 100000],
-                ['Medium Term Target', 500000],
-                ['Long Term Current', 200000],
-                ['Long Term Target', 2000000],
-                ['Emergency Fund Allocation', 0.20],
-                ['Short Term Allocation', 0.15],
-                ['Medium Term Allocation', 0.25],
-                ['Long Term Allocation', 0.40]
-            ];
-
-            const ws = XLSX.utils.aoa_to_sheet(sampleData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Financial Data');
-            XLSX.writeFile(wb, 'financial-data-template.xlsx');
-        }
-
-        // Custom message box instead of alert()
         function displayMessage(message) {
             const messageBox = document.createElement('div');
             messageBox.style.cssText = `
