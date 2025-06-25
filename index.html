@@ -151,6 +151,39 @@
             color: rgb(96, 165, 250); /* Blue-400 */
         }
 
+        /* Buttons */
+        .btn {
+            background-color: rgb(59, 130, 246); /* Blue-500 */
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            display: inline-block; /* For centering */
+        }
+
+        .btn:hover {
+            background-color: rgb(37, 99, 235); /* Blue-600 */
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: rgb(82, 82, 91); /* Gray-600 */
+        }
+
+        .btn-secondary:hover {
+            background-color: rgb(63, 63, 70); /* Gray-700 */
+        }
+
+
         /* Dashboard */
         .dashboard {
             display: block; /* Always show dashboard, populated by inputs */
@@ -655,8 +688,8 @@
                 <div class="input-group">
                     <label for="monthlyInvestmentRange">Monthly Investment: ₹<span id="monthlyInvestmentDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="monthlyInvestmentRange" min="0" max="200000" step="5000" value="25000">
-                        <input type="number" id="monthlyInvestmentNumber" min="0" max="200000" step="1000" value="25000">
+                        <input type="range" id="monthlyInvestmentRange" min="0" max="1000000000" step="5000" value="25000">
+                        <input type="number" id="monthlyInvestmentNumber" min="0" max="1000000000" step="1000" value="25000">
                     </div>
                 </div>
                 <div class="input-group">
@@ -681,64 +714,64 @@
                 <div class="input-group">
                     <label for="emergencyCurrentRange">Emergency Fund Current: ₹<span id="emergencyCurrentDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="emergencyCurrentRange" min="0" max="500000" step="1000" value="50000">
-                        <input type="number" id="emergencyCurrentNumber" min="0" max="500000" step="100" value="50000">
+                        <input type="range" id="emergencyCurrentRange" min="0" max="1000000000" step="1000" value="50000">
+                        <input type="number" id="emergencyCurrentNumber" min="0" max="1000000000" step="100" value="50000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="emergencyTargetRange">Emergency Fund Target: ₹<span id="emergencyTargetDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="emergencyTargetRange" min="0" max="1000000" step="10000" value="150000">
-                        <input type="number" id="emergencyTargetNumber" min="0" max="1000000" step="1000" value="150000">
+                        <input type="range" id="emergencyTargetRange" min="0" max="1000000000" step="10000" value="150000">
+                        <input type="number" id="emergencyTargetNumber" min="0" max="1000000000" step="1000" value="150000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="shortTermCurrentRange">Short Term Current: ₹<span id="shortTermCurrentDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="shortTermCurrentRange" min="0" max="500000" step="1000" value="30000">
-                        <input type="number" id="shortTermCurrentNumber" min="0" max="500000" step="100" value="30000">
+                        <input type="range" id="shortTermCurrentRange" min="0" max="1000000000" step="1000" value="30000">
+                        <input type="number" id="shortTermCurrentNumber" min="0" max="1000000000" step="100" value="30000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="shortTermTargetRange">Short Term Target: ₹<span id="shortTermTargetDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="shortTermTargetRange" min="0" max="1000000" step="10000" value="200000">
-                        <input type="number" id="shortTermTargetNumber" min="0" max="1000000" step="1000" value="200000">
+                        <input type="range" id="shortTermTargetRange" min="0" max="1000000000" step="10000" value="200000">
+                        <input type="number" id="shortTermTargetNumber" min="0" max="1000000000" step="1000" value="200000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="mediumTermCurrentRange">Medium Term Current: ₹<span id="mediumTermCurrentDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="mediumTermCurrentRange" min="0" max="1000000" step="5000" value="100000">
-                        <input type="number" id="mediumTermCurrentNumber" min="0" max="1000000" step="1000" value="100000">
+                        <input type="range" id="mediumTermCurrentRange" min="0" max="1000000000" step="5000" value="100000">
+                        <input type="number" id="mediumTermCurrentNumber" min="0" max="1000000000" step="1000" value="100000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="mediumTermTargetRange">Medium Term Target: ₹<span id="mediumTermTargetDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="mediumTermTargetRange" min="0" max="2000000" step="10000" value="500000">
-                        <input type="number" id="mediumTermTargetNumber" min="0" max="2000000" step="1000" value="500000">
+                        <input type="range" id="mediumTermTargetRange" min="0" max="1000000000" step="10000" value="500000">
+                        <input type="number" id="mediumTermTargetNumber" min="0" max="1000000000" step="1000" value="500000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="longTermCurrentRange">Long Term Current: ₹<span id="longTermCurrentDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="longTermCurrentRange" min="0" max="2000000" step="10000" value="200000">
-                        <input type="number" id="longTermCurrentNumber" min="0" max="2000000" step="1000" value="200000">
+                        <input type="range" id="longTermCurrentRange" min="0" max="1000000000" step="10000" value="200000">
+                        <input type="number" id="longTermCurrentNumber" min="0" max="1000000000" step="1000" value="200000">
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="longTermTargetRange">Long Term Target: ₹<span id="longTermTargetDisplay"></span></label>
                     <div class="slider-display">
-                        <input type="range" id="longTermTargetRange" min="0" max="5000000" step="50000" value="2000000">
-                        <input type="number" id="longTermTargetNumber" min="0" max="5000000" step="10000" value="2000000">
+                        <input type="range" id="longTermTargetRange" min="0" max="1000000000" step="50000" value="2000000">
+                        <input type="number" id="longTermTargetNumber" min="0" max="1000000000" step="10000" value="2000000">
                     </div>
                 </div>
             </div>
@@ -844,8 +877,9 @@
                 </div>
             </div>
             
-            <div style="text-align: center; margin-top: 30px;">
+            <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 20px;">
                 <button class="btn btn-secondary" onclick="showInputPage()">Back to Inputs</button>
+                <button class="btn" onclick="downloadPDF()">Download PDF</button>
             </div>
         </div>
     </div>
@@ -1016,6 +1050,7 @@
         // Setup input controls and initial dashboard render on page load
         document.addEventListener('DOMContentLoaded', () => {
             // Setup hybrid inputs for all relevant fields
+            // Max range for amount inputs changed to 1,00,00,00,000 (1 billion)
             setupHybridInput('monthlyInvestmentRange', 'monthlyInvestmentNumber', 'monthlyInvestmentDisplay', '₹');
             setupHybridInput('emergencyCurrentRange', 'emergencyCurrentNumber', 'emergencyCurrentDisplay', '₹');
             setupHybridInput('emergencyTargetRange', 'emergencyTargetNumber', 'emergencyTargetDisplay', '₹');
@@ -1258,7 +1293,7 @@
                             ticks: {
                                 color: 'rgb(200, 200, 200)',
                                 callback: function(value) {
-                                    return value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                                    return value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }); 
                                 }
                             }
                         }
@@ -1292,7 +1327,8 @@
         }
 
         function downloadPDF() {
-            const element = document.getElementById('dashboard');
+            // Use the dashboardPage element for PDF generation
+            const element = document.getElementById('dashboardPage'); 
             const opt = {
                 margin: 0.5,
                 filename: 'financial-dashboard.pdf',
@@ -1300,7 +1336,8 @@
                 html2canvas: { 
                     scale: 0.8, 
                     useCORS: true,
-                    width: document.querySelector('.container').offsetWidth,
+                    // Set width based on the actual rendered width of the container
+                    width: document.querySelector('.container').offsetWidth, 
                 }, 
                 jsPDF: { 
                     unit: 'in', 
