@@ -858,7 +858,7 @@
                             <th>Target Amount</th>
                             <th>Time Horizon (Years)</th>
                             <th>Monthly SIP Required</th>
-                            <th>Current Monthly Allocation</th> <!-- New column header -->
+                            <th>Current Amount Invested</th> <!-- Changed from Current Monthly Allocation -->
                             <th>Projected Corpus</th>
                             <th>Status</th>
                         </tr>
@@ -1155,7 +1155,6 @@
 
             goals.forEach(goal => {
                 const goalData = financialData.goals[goal.key];
-                const requiredAmount = Math.max(0, goalData.target - goalData.current); 
                 
                 let annualRate;
                 if (goal.key === 'emergency' || goal.key === 'shortTerm') {
@@ -1166,21 +1165,32 @@
                 const monthlyRate = annualRate / 12;
                 const months = goal.years * 12;
                 
-                let monthlySIP = 0;
-                if (requiredAmount > 0 && months > 0) {
-                    const factor = (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
-                    monthlySIP = requiredAmount / factor;
-                } else if (requiredAmount === 0) {
-                    monthlySIP = 0; 
-                } else {
-                    monthlySIP = Infinity; 
+                // Calculate the future value of the current amount invested.
+                const fvCurrentAmount = goalData.current * Math.pow(1 + monthlyRate, months);
+                
+                // Calculate the remaining amount needed after accounting for the future value of the current investment.
+                const remainingAmountNeeded = Math.max(0, goalData.target - fvCurrentAmount);
+                
+                let monthlySIPRequired = 0;
+                // If there's a remaining amount and a valid investment period/rate
+                if (remainingAmountNeeded > 0 && months > 0) {
+                    if (monthlyRate > 0) {
+                        const factorSIP = (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
+                        monthlySIPRequired = remainingAmountNeeded / factorSIP;
+                    } else { // Handle 0% interest rate separately for SIP calculation
+                        monthlySIPRequired = remainingAmountNeeded / months;
+                    }
+                } else if (remainingAmountNeeded <= 0) {
+                    monthlySIPRequired = 0; // No additional SIP needed if current investment already covers the target (or exceeds it)
                 }
+                // If months is 0, monthlySIPRequired will remain 0, which is correct (instantaneous goal)
 
                 const currentMonthlyAllocation = financialData.monthlyInvestment * financialData.goals[goal.key].allocationPercent;
 
-                // Projected Corpus = (Current Amount * (1 + Monthly Rate)^Months) + (Monthly Current Allocation * [((1 + Monthly Rate)^Months - 1) / Monthly Rate] * (1 + Monthly Rate))
-                const projectedCorpus = (goalData.current * Math.pow(1 + monthlyRate, months)) + 
-                                        (currentMonthlyAllocation * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate));
+                // Projected Corpus to check achievability: Future value of Current Amount + Future value of Allocated Monthly Investment
+                const factorFVMonthly = (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate * (1 + monthlyRate);
+                const fvCurrentMonthlyAllocation = currentMonthlyAllocation * factorFVMonthly;
+                const projectedCorpus = fvCurrentAmount + fvCurrentMonthlyAllocation;
 
                 const isAchievable = projectedCorpus >= goalData.target;
 
@@ -1189,8 +1199,8 @@
                     <td>${goal.title}</td>
                     <td>${goalData.target.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                     <td>${goal.years}</td>
-                    <td>${monthlySIP === Infinity ? 'N/A' : monthlySIP.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
-                    <td>${currentMonthlyAllocation.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td> <!-- New cell for Current Monthly Allocation -->
+                    <td>${monthlySIPRequired === Infinity ? 'N/A' : monthlySIPRequired.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
+                    <td>${goalData.current.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
                     <td class="${isAchievable ? 'projected-corpus-achievable' : 'projected-corpus-not-achievable'}">
                         ${projectedCorpus.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </td>
